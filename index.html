@@ -88,13 +88,6 @@
       z-index: 5;
     }
 
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
-
     .heart-container {
       position: relative;
       width: 350px;
@@ -266,4 +259,46 @@
       const ctx = canvas.getContext("2d");
       const container = document.querySelector(".heart-container");
 
-      canvas.width = contain
+      canvas.width = container.offsetWidth;
+      canvas.height = container.offsetHeight;
+
+      let t = 0;
+      function drawHeart() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.strokeStyle = `hsl(${t % 360}, 100%, 70%)`;
+        ctx.lineWidth = 3;
+
+        for (let i = 0; i < Math.PI * 2; i += 0.01) {
+          const x = 16 * Math.pow(Math.sin(i), 3);
+          const y = 13 * Math.cos(i) - 5 * Math.cos(2 * i) - 2 * Math.cos(3 * i) - Math.cos(4 * i);
+          ctx.lineTo(canvas.width / 2 + x * 10, canvas.height / 2 - y * 10);
+        }
+
+        ctx.stroke();
+        t += 2;
+        requestAnimationFrame(drawHeart);
+      }
+      drawHeart();
+
+      // Message loop inside heart
+      const messages = [
+        "You are my today and all of my tomorrows 💞",
+        "Every heartbeat whispers your name 💓",
+        "With you, forever feels too short 💍",
+        "Love flows endlessly, just like this heart 💖",
+        "You're my sunshine after every rain ☀️🌈"
+      ];
+
+      let index = 0;
+      function showMessage() {
+        document.getElementById("message").textContent = messages[index];
+        index = (index + 1) % messages.length;
+      }
+      showMessage();
+      setInterval(showMessage, 4000);
+    }
+  </script>
+</body>
+</html>
+
