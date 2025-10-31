@@ -15,11 +15,12 @@
       height: 100vh;
       overflow: hidden;
       font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      animation: bgflow 10s ease-in-out infinite alternate;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #ff758c, #ff7eb3);
-      animation: bgflow 10s ease-in-out infinite alternate;
+      color: white;
     }
 
     @keyframes bgflow {
@@ -28,19 +29,19 @@
       100% { background: linear-gradient(135deg, #43cea2, #185a9d); }
     }
 
-    /* Intro Page */
+    /* Opening Screen */
     #intro {
       position: absolute;
-      inset: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(0,0,0,0.8);
-      color: #fff;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      z-index: 10;
       transition: opacity 2s ease-in-out;
+      z-index: 10;
     }
 
     #intro h2 {
@@ -83,7 +84,6 @@
       opacity: 0;
       transition: opacity 2s ease-in-out;
       text-align: center;
-      color: white;
       position: relative;
       z-index: 5;
     }
@@ -95,25 +95,50 @@
       z-index: 1;
     }
 
-    h1 {
-      font-size: 3.2em;
-      z-index: 2;
-      text-shadow: 0 0 20px rgba(255,255,255,0.6);
+    .heart-container {
+      position: relative;
+      width: 350px;
+      height: 300px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Names and messages inside the heart */
+    .heart-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 90%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 3;
+    }
+
+    #leftName, #rightName {
+      position: absolute;
+      top: 35%;
+      font-size: 1.3em;
+      font-weight: 600;
       animation: glow 2s ease-in-out infinite alternate;
     }
 
+    #leftName { left: 10%; }
+    #rightName { right: 10%; }
+
     @keyframes glow {
-      from { text-shadow: 0 0 10px #fff, 0 0 20px #ff1a75, 0 0 30px #ff4da6; }
-      to { text-shadow: 0 0 20px #fff, 0 0 40px #ff80bf, 0 0 50px #ff1a75; }
+      from { text-shadow: 0 0 10px #fff, 0 0 20px #ff1a75; }
+      to { text-shadow: 0 0 20px #fff, 0 0 40px #ff80bf; }
     }
 
     #message {
-      font-size: 1.3em;
+      font-size: 1.1em;
       animation: fadeIn 4s ease-in-out infinite alternate;
-      width: 80%;
-      margin: 40px auto;
-      z-index: 3;
-      position: relative;
+      margin-top: 60px;
+      color: #fff;
     }
 
     @keyframes fadeIn {
@@ -121,29 +146,14 @@
       to { opacity: 1; }
     }
 
-    /* Floating hearts */
-    .heart {
-      position: absolute;
-      color: #ff007f;
-      font-size: 20px;
-      opacity: 0.8;
-      animation: floatHearts 8s linear infinite;
-      z-index: 2;
-    }
-
-    @keyframes floatHearts {
-      0% { transform: translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
-    }
-
     /* Controls */
     #controls {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      z-index: 5;
       display: flex;
       gap: 10px;
+      z-index: 5;
     }
 
     #controls button {
@@ -161,7 +171,6 @@
       transform: scale(1.1);
     }
 
-    /* Download prompt */
     #downloadInfo {
       position: fixed;
       bottom: 20px;
@@ -176,18 +185,23 @@
   </style>
 </head>
 <body>
-  <!-- Intro Page -->
+  <!-- Opening Page -->
   <div id="intro">
     <h2>💝 A Special Surprise Awaits 💝</h2>
-    <p>Click below to open your romantic digital gift 💞</p>
-    <button id="enterBtn">Open Your Gift 🎁</button>
+    <p>Click below to open your romantic gift 💞</p>
+    <button id="enterBtn">Open Gift 🎁</button>
   </div>
 
-  <!-- Main Card -->
+  <!-- Main Page -->
   <div id="mainContent">
-    <canvas id="heartCanvas"></canvas>
-    <h1 id="names">Fredrick ❤️ Jemima</h1>
-    <p id="message"></p>
+    <div class="heart-container">
+      <canvas id="heartCanvas"></canvas>
+      <div class="heart-text">
+        <span id="leftName">Fredrick</span>
+        <span id="rightName">Jemima</span>
+        <p id="message"></p>
+      </div>
+    </div>
 
     <!-- Controls -->
     <div id="controls">
@@ -239,7 +253,6 @@
       }
     });
 
-    // Download card (HTML snapshot)
     downloadBtn.addEventListener("click", async () => {
       const blob = new Blob([document.documentElement.outerHTML], { type: "text/html" });
       const link = document.createElement("a");
@@ -249,63 +262,8 @@
     });
 
     function startCard() {
-      // Canvas glowing heart
       const canvas = document.getElementById("heartCanvas");
       const ctx = canvas.getContext("2d");
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      let t = 0;
+      const container = document.querySelector(".heart-container");
 
-      function drawHeart() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
-        ctx.moveTo(canvas.width / 2, canvas.height / 2);
-        ctx.strokeStyle = `hsl(${t % 360}, 100%, 70%)`;
-        ctx.lineWidth = 3;
-
-        for (let i = 0; i < Math.PI * 2; i += 0.01) {
-          const x = 16 * Math.pow(Math.sin(i), 3);
-          const y = 13 * Math.cos(i) - 5 * Math.cos(2 * i) - 2 * Math.cos(3 * i) - Math.cos(4 * i);
-          ctx.lineTo(canvas.width / 2 + x * 15, canvas.height / 2 - y * 15);
-        }
-
-        ctx.stroke();
-        t += 2;
-        requestAnimationFrame(drawHeart);
-      }
-      drawHeart();
-
-      // Floating hearts
-      function createHeart() {
-        const heart = document.createElement("div");
-        heart.classList.add("heart");
-        heart.textContent = "💖";
-        document.body.appendChild(heart);
-        heart.style.left = Math.random() * window.innerWidth + "px";
-        heart.style.fontSize = Math.random() * 25 + 10 + "px";
-        heart.style.animationDuration = Math.random() * 6 + 5 + "s";
-        heart.style.color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-        setTimeout(() => heart.remove(), 8000);
-      }
-      setInterval(createHeart, 400);
-
-      // Text loop
-      const messages = [
-        "You are my today and all my tomorrows 💞",
-        "Every heartbeat whispers your name 💓",
-        "With you, forever feels too short 💍",
-        "Love flows endlessly, just like this heart 💖",
-        "You're my sunshine after every rain ☀️🌈"
-      ];
-
-      let index = 0;
-      function showMessage() {
-        document.getElementById("message").textContent = messages[index];
-        index = (index + 1) % messages.length;
-      }
-      showMessage();
-      setInterval(showMessage, 4000);
-    }
-  </script>
-</body>
-</html>
+      canvas.width = contain
